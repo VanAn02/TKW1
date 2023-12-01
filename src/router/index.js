@@ -8,12 +8,59 @@ const routes = [
     component: HomeView
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    path: '/login',
+    name: 'Login',
+    component:()=>import ('@/layout/Client/Login.vue')
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component:()=>import ('@/layout/Client/Register.vue')
+  },
+  {
+    path: '/introduce',
+    name: 'Introduce',
+    component:()=>import ('@/layout/Client/Introduce.vue')
+  },
+  {
+    path: '/blog',
+    name: 'Blog',
+    component:()=>import ('@/layout/Client/Blog.vue')
+  },
+  {
+    path: '/detail',
+    name: 'Detail',
+    component:()=>import ('@/layout/Client/Detail.vue')
+  },
+ 
+  {
+    path: '/post',
+    name: 'Post',
+    component:()=>import ('@/layout/Client/Post.vue')
+  },
+  {
+    path: '/forgot',
+    name: 'Forgot',
+    component:()=>import ('@/layout/Client/Forgot.vue')
+  },
+  {
+    path:'/admin',
+    component:()=>import ('@/views/AdminView.vue'),
+    children:[
+      {
+        path:'baiviet',
+        component:()=>import('@/layout/Admin/BaiViet/BaiViet.vue')
+      },
+      {
+        path:'nguoidung',
+        component:()=>import('@/layout/Admin/NguoiDung/NguoiDung.vue')
+      },
+      {
+        path:'tour',
+        component:()=>import('@/layout/Admin/Tour/TourView.vue')
+      },
+     
+    ]
   }
 ]
 
