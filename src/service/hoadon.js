@@ -1,18 +1,18 @@
 import axios from "axios";
-const hoadonApi = axios.create({
+const hoadon = axios.create({
     baseURL:'https://localhost:2407/api/HoaDon'
 });
 export default{
     async checkOut(data){
-        return await hoadonApi.post('',data);
+        return await hoadon.post('',data);
     },
     async getById(id){
-        return await hoadonApi.get(`${id}`);
+        return await hoadon.get(`${id}`);
     },
     async getChiTietById(id){
-        return await hoadonApi.get('/getChiTiet/'+id);
+        return await hoadon.get('/getChiTiet/'+id);
     },
     async huyDon(id){
-        return await hoadonApi.delete(`${id}`);
+        return await hoadon.delete(`${id}`);
     }
 }

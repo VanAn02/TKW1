@@ -2,13 +2,15 @@
   <div>
     <v-dialog v-model="dialogAction" max-width="900px">
       <v-card>
-        <v-card-title class="text-center">
-          <span>{{
-            !currentData
-              ? "Thêm thông tin người dùng mới "
-              : "Cập nhập thông tin người dùng"
-          }}</span>
-        </v-card-title>
+        <v-toolbar
+          class="text-center bold-text"
+          style="background-color: rgb(194, 203, 247)"
+          :title="
+            this.idEdit != null
+              ? 'Sửa thông tin người dùng mới'
+              : 'Thêm thông tin người dùng mới'
+          "
+        ></v-toolbar>
         <v-card-text>
           <v-form>
             <v-container>
@@ -20,15 +22,21 @@
                     accept="image/png, image/jpeg, image/bmp"
                     placeholder="Chọn ảnh"
                     prepend-icon="mdi-camera"
-                    label="Ảnh Người Dùng"
+                    label="Hình ảnh"
                     @change="handleImageChange"
                   ></v-file-input>
+                  <img
+                    v-if="selectedImage"
+                    :src="selectedImage"
+                    style="width: 200px; height: 200px"
+                    alt="1"
+                  />
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field
-                    label="Họ và Tên*"
+                    label="Họ Và Tên*"
                     required
-                    v-model="formData.HoTen"
+                    v-model="formData.HoVaTen"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
@@ -61,7 +69,7 @@
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field
-                    label="Quyen*"
+                    label="Quyền*"
                     required
                     v-model="formData.Quyen"
                   ></v-text-field>
@@ -72,19 +80,29 @@
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
-          <v-btn color="green" @click="updateData"> Lưu </v-btn>
+          <v-btn color="green" @click="updateData()"> Lưu </v-btn>
           <v-spacer> </v-spacer>
           <v-btn color="red" @click="$emit('close'), reSetForm"> Hủy </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <show
+      style="z-index: 1000"
+      v-model="showAlert.show"
+      :content="showAlert.content"
+      :color="showAlert.color"
+      :icon="showAlert.icon"
+    />
   </div>
 </template>
-      
+    
+  
 <script>
 import nguoidung from "@/service/nguoidung";
+import Show from "@/components/Show.vue";
 
 export default {
+  components: { Show },
   name: "DialogView",
   props: ["dialog", "currentData"],
   computed: {
@@ -102,15 +120,20 @@ export default {
   data() {
     return {
       formData: {
-        Id: "",
-        AnhNguoiDung: "",
-        HoTen: "",
+        NguoiDungId: "",
+        NguoiDungHinhAnh: "",
+        HoVaTen: "",
         Email: "",
         Password: "",
         DiaChi: "",
         Sdt: "",
         Quyen: "",
-
+      },
+      showAlert: {
+        show: false,
+        icon: "$success",
+        content: "",
+        color: "success",
       },
       nguoidungs: [],
       selectedImage: null,
@@ -119,15 +142,14 @@ export default {
   },
   watch: {
     currentData: function () {
-      this.formData.Id = this.currentData.Id;
-      this.formData.AnhNguoiDung = this.currentData.AnhNguoiDung;
-      this.formData.HoTen = this.currentData.HoTen;
+      this.formData.NguoiDungId = this.currentData.NguoiDungId;
+      this.formData.NguoiDungHinhAnh = this.currentData.NguoiDungHinhAnh;
+      this.formData.HoVaTen = this.currentData.HoVaTen;
       this.formData.Email = this.currentData.Email;
       this.formData.Password = this.currentData.Password;
       this.formData.DiaChi = this.currentData.DiaChi;
       this.formData.Sdt = this.currentData.Sdt;
       this.formData.Quyen = this.currentData.Quyen;
-
     },
     showAlert: {
       deep: true,
@@ -148,27 +170,48 @@ export default {
         this.selectedImage = null;
       }
     },
+    reSetForm() {
+      this.formData.NguoiDungId = "";
+      this.formData.NguoiDungHinhAnh = "";
+      this.formData.HoVaTen = "";
+      this.formData.Email = "";
+      this.formData.Password = "";
+      this.formData.DiaChi = "";
+      this.formData.Sdt = "";
+      this.formData.Quyen = "";
+      this.image=null;
+      this.selectedImage="";
+    },
     async updateData() {
-      console.log(this.formData);
       this.dialogloading = true;
       try {
-        if (this.formData.Id === "") {
-          this.formData.Id = 0;
-          this.formData.AnhNguoiDung = this.image;
-          console.log(this.formData);
-          //console.log(res.data);
-          const rs = await nguoidung.addData(this.formData);
-          console.log(rs);
+        if (this.formData.NguoiDungId === "") {
+          this.formData.NguoiDungId = 0;
+          this.formData.NguoiDungHinhAnh = this.image;
+          console.log(this.formData)
+          // const res = await nguoidung.addData(this.formData);
+          // console.log(res);
+          this.dialogloading = false;
+          this.AlertSuccess("Thêm mới thông tin thành công");
         } else {
-          this.formData.AnhNguoiDung = this.image;
-          const res = await nguoidung.updateData(this.formData.Id, this.formData);
+          this.formData.NguoiDungHinhAnh = this.image;
+          const res = await nguoidung.updateData(
+            this.formData.NguoiDungId,
+            this.formData
+          );
           console.log(res.data);
+          this.dialogloading = false;
+          this.getNguoiDung();
+          this.AlertSuccess("Cập nhập thông tin thành công");
         }
       } catch (error) {
         console.log(error);
+        this.dialogloading = false;
+        this.AlertError("Không thể thực hiện được");
       }
       this.$emit("close");
       this.$emit("updateData");
+      this.reSetForm();
     },
     async getNguoiDung() {
       try {
@@ -179,11 +222,23 @@ export default {
         console.log(error);
       }
     },
+    AlertSuccess(content) {
+      this.showAlert.show = true;
+      this.showAlert.icon = "$success";
+      this.showAlert.content = content;
+      this.showAlert.color = "success";
+    },
+    AlertError(content) {
+      this.showAlert.show = true;
+      this.showAlert.content = content;
+      this.showAlert.icon = "$error";
+      this.showAlert.color = "error";
+    },
   },
   created() {
     this.getNguoiDung();
   },
 };
 </script>
-    
-    <style></style>
+  
+  <style></style>

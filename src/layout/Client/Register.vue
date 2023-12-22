@@ -9,29 +9,36 @@
           >
         </v-toolbar>
         <v-divider aria-orientation="horizontal"></v-divider>
-        <v-form ref="form" class="pa-7" v-model="valid" lazy-validation>
+        <v-form ref="form" class="pa-7" v-model="valid" @submit.prevent="signup" lazy-validation>
+          <v-text-field
+            v-model="FormDangKy.HoVaTen"
+            label="Họ tên"
+            outlined
+          ></v-text-field>
           <v-text-field
             :rules="emailRules"
-            v-model="user.email"
+            v-model="FormDangKy.Email"
             label="Email"
             outlined
           ></v-text-field>
           <v-text-field
+            v-model="FormDangKy.Password"
             :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
             label="Password"
             :type="show ? 'text' : 'password'"
             @click:append="show = !show"
           ></v-text-field>
           <div v-html="message" style="color: red"></div>
-          <v-btn :disabled="!valid" type="submit" x-large block color="success"
-            >Register</v-btn
+          <v-btn
+            type="submit"
+            x-large
+            block
+            color="success"
+            :loading="loading"
+            :disabled="loading || !FormDangKy.HoVaTen || !FormDangKy.Email || !FormDangKy.Password"
+            > Đăng Ký</v-btn
           >
           <div v-html="message" style="color: #f542a1" class="py-2"></div>
-          <v-checkbox v-model="checkbox"
-            ><template v-slot:label>
-              <div class="black--text font-weight-bold">I agree</div>
-            </template></v-checkbox
-          >
           <v-divider aria-orientation="horizontal" class="mb-5"></v-divider>
           <router-link
             to="/login"
@@ -42,68 +49,88 @@
         </v-form>
       </v-card>
     </v-responsive>
+    <show
+      style="z-index: 1000"
+      v-model="showAlert.show"
+      :content="showAlert.content"
+      :color="showAlert.color"
+      :icon="showAlert.icon"
+    />
   </v-container>
 </template>
 
 <script>
-import { mapMutations } from "vuex";
 import Navbar from "@/components/Client/Navbar.vue";
-
+//import nguoidung from "@/service/nguoidung";
+import Show from "@/components/Show.vue";
+import axios from "axios";
 export default {
-  components: { Navbar },
+  components: { Navbar,
+  Show },
   name: "RegisterView",
   data() {
     return {
-      valid: true,
-      //text: '***',
-      checkbox: false,
-      show: false,
-      user: {
-        firstName: "",
-        tenDangNhap: "",
-        email: "",
-        password: "",
+      FormDangKy: {
+        HoVaTen: "",
+        Email: "",
+        Password: "",
+        // Quyen: "Người dùng",
       },
-      emailRules: [
-        (v) => !!v || "E-mail is required",
-        (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
-      ],
-      rules: {
-        required: (value) => !!value || "Required.",
-        max: (v) =>
-          (v && v.length <= 16) || "Password must be less than 16 characters",
-        min: (v) => (v && v.length) >= 6 || "Password at least 6 characters",
-      },
-      message: "",
+      errorSnackbar: false,
+      errorText: "",
       loading: false,
+      showAlert: {
+        show: false,
+        icon: "$success",
+        content: "",
+        color: "success",
+      },
     };
   },
-  methods: {
-    ...mapMutations(["ADD_USER"]),
-    handleRegister(user) {
-      this.message = "";
-      this.successful = false;
-      this.loading = true;
-
-      this.$store.dispatch("auth/register", user).then(
-        (data) => {
-          this.message = data.msg;
-          this.successful = true;
-          this.loading = false;
-        },
-        (error) => {
-          this.message = error.response.data.msg;
-          error.toString();
-          this.successful = false;
-          this.loading = false;
-        }
-      );
-    },
-    validate() {
-      this.$refs.form.validate();
+  watch: {
+    showAlert: {
+      deep: true,
+      handler(newVal) {
+        if (!newVal.show) return;
+        setTimeout(() => (this.showAlert.show = false), 2000);
+      },
     },
   },
-  computed: {},
+  methods: {
+         signup() {
+            try {
+                this.loading = true;
+                //console.log(this.FormDangKy)
+                axios.post('https://localhost:7125/api/NguoiDung/register',this.FormDangKy).then(rs=>{
+                   alert(rs.data)
+                   setTimeout(() => {
+                    this.$router.push("/login");
+                    this.name = '';
+                      this.email = '';
+                      this.password = '';
+                      this.loading = false;
+                  }, 1500);
+                })
+                this.errorSnackbar = true;
+            } catch (error) {
+                this.loading = false;
+                console.log(error.response);
+                this.AlertError(error.response.data);
+            }
+        },
+        AlertSuccess(content) {
+            this.showAlert.show = true;
+            this.showAlert.icon = "$success";
+            this.showAlert.content = content;
+            this.showAlert.color = "success";
+        },
+        AlertError(content) {
+            this.showAlert.show = true;
+            this.showAlert.content = content;
+            this.showAlert.icon = "$error";
+            this.showAlert.color = "error";
+        }
+    }
 };
 </script>
 

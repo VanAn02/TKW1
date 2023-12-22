@@ -17,9 +17,9 @@
                 <th class="text-center">STT</th>
                 <th class="text-center">Ảnh Tiêu Đề</th>
                 <th class="text-center">Tiêu Đề</th>
-                <th class="text-center">Nội Dung</th>
                 <th class="text-center">Ngày Đăng</th>
                 <th class="text-center">Tên Người Đăng</th>
+                <th class="text-center">Nội Dung</th>
                 <th class="text-center">Hành động</th>
               </tr>
             </thead>
@@ -27,60 +27,42 @@
               <tr v-for="(item, index) in datas" :key="index">
                 <td class="text-center">{{ index + 1 }}</td>
                 <td class="text-center">
-                    <img :src="item.AnhTieuDe" style="width:120px;height:80px;" />
+                  <img :src="item.AnhBaiViet" style="width:150px;height:150px;" />
                 </td>
                 <td class="text-center">{{ item.TieuDe }}</td>
-                <td class="text-center">{{ item.NoiDung }}</td>
-                <td class="text-center">{{ item.NgayDang }}</td>
+                <td class="text-center">{{ formatDateTime(item.NgayDang) }}</td>
                 <td class="text-center">{{ item.NguoiDungId }}</td>
+                <td class="text-center">{{ item.NoiDung }}</td>
                 <td class="text-center">
-                  <v-btn
-                    icon
-                    type="submit"
-                    color="green"
-                    size="small"
-                    @click="(dialog = true), (currentData = item)"
-                  >
+                  <v-btn icon color="green" size="small" @click="(dialog = true), (currentData = item)">
                     <v-icon>mdi-pencil</v-icon>
                   </v-btn>
-                  <v-btn
-                    icon
-                    type="submit"
-                    color="red"
-                    size="small"
-                    @click="Confirm(item.Id)"
-                  >
+                  <v-btn icon color="red" size="small" @click="Show(item.BaiVietId)">
                     <v-icon>mdi-delete</v-icon>
                   </v-btn>
                 </td>
               </tr>
             </tbody>
           </v-table>
-          <v-pagination
-            prev-icon="mdi-menu-left"
-            next-icon="mdi-menu-right"
-            class="pa-8"
-            :length="totalPages"
-            v-model="currentPage"
-          ></v-pagination>
+          <show style="z-index: 1000" v-model="showAlert.show" :content="showAlert.content" :color="showAlert.color"
+            :icon="showAlert.icon" />
+          <v-pagination prev-icon="mdi-menu-left" next-icon="mdi-menu-right" class="pa-8" :length="totalPages"
+            v-model="currentPage"></v-pagination>
         </v-card>
       </v-col>
     </v-row>
   </div>
-  <Dialog
-    :dialog="dialog"
-    @close="dialog = false"
-    @updateData="getAll"
-    :currentData="currentData"
-  />
-  <thongbao ref="dialog" :obj="objId" @xoaData="xoaData" />
+  <Dialog :dialog="dialog" @close="dialog = false" @updateData="getAll" :currentData="currentData" />
+  <thongbao ref="dialog" @deleteData="deleteData" :obj="objId" />
 </template>
     
   
-  <script>
+<script>
 import Dialog from "@/layout/Admin/BaiViet/Dialog.vue";
 import Thongbao from "@/components/Client/Thongbao.vue";
-import baiviet from "@/service/baiviet";
+import Show from "@/components/Show.vue";
+import axios from 'axios';
+
 export default {
   name: "BaiVietView",
   data() {
@@ -103,6 +85,7 @@ export default {
   components: {
     Dialog,
     Thongbao,
+    Show,
   },
   watch: {
     showAlert: {
@@ -113,29 +96,74 @@ export default {
       },
     },
   },
-  methods: {
-    Confirm(id) {
-      (this.objId = id), this.$refs.dialog.openDialog();
-    },
-    async getAll(){
-        try{
-          const rs= await baiviet.getAll();
-          this.datas=rs.data;
-          console.log(this.datas)
-        }catch(error){
-          console.log(error);
-        }
-    },
-    async xoaData(id) {
-      try {
-        const res = await baiviet.deleteData(id);
-        console.log(res.data);
-        this.getAll();
-      } catch (error) {
-        console.log(error);
+  computed: {
+    displayed() {
+      if (this.datas && this.datas.length > 0) {
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+        return this.datas.slice(startIndex, endIndex);
+      } else {
+        return [];
       }
     },
-   
+    totalPages() {
+      return Math.ceil(this.datas.length / this.itemsPerPage);
+    },
+  },
+  methods: {
+    getAll() {
+      this.dialogloading = true;
+        axios.get('https://localhost:7125/api/BaiViet').then(res => {
+          this.datas = res.data;
+        }).catch(error => {
+          console.log(error);
+        })
+        this.dialogloading = false;
+    },
+    Show(id) {
+      (this.objId = id), this.$refs.dialog.openDialog();
+    },
+    deleteData(id) {
+      this.dialogloading = true;
+      axios.delete('https://localhost:7125/api/BaiViet/' + id).then(res => {
+        console.log(res.data);
+        this.AlertSuccess("Xóa thành công");
+        this.getAll();
+
+      }).catch(error => {
+        console.log(error);
+        this.dialogloading = false;
+        this.AlertError("Thao tác xóa chưa được thực hiện");
+      })
+      this.dialogloading = false;
+
+    },
+    formatDateTime(dateTimeString) {
+      const dateObject = new Date(dateTimeString);
+      const day = String(dateObject.getDate()).padStart(2, '0');
+      const month = String(dateObject.getMonth() + 1).padStart(2, '0');
+      const year = String(dateObject.getFullYear()).slice();
+      return `${day}/${month}/${year}`;
+    },
+    formatCurrency(value) {
+      const formatter = new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+      });
+      return formatter.format(value);
+    },
+    AlertSuccess(content) {
+      this.showAlert.show = true;
+      this.showAlert.icon = "$success";
+      this.showAlert.content = content;
+      this.showAlert.color = "success";
+    },
+    AlertError(content) {
+      this.showAlert.show = true;
+      this.showAlert.content = content;
+      this.showAlert.icon = "$error";
+      this.showAlert.color = "error";
+    },
   },
   created() {
     this.getAll();
@@ -143,4 +171,4 @@ export default {
 };
 </script>
   
-  <style></style>
+<style></style>

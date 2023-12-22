@@ -28,13 +28,13 @@ const routes = [
     component:()=>import ('@/layout/Client/Blog.vue')
   },
   {
-    path: '/detail',
+    path: '/detail/:id',
     name: 'Detail',
     component:()=>import ('@/layout/Client/Detail.vue')
   },
  
   {
-    path: '/post',
+    path: '/post/:id',
     name: 'Post',
     component:()=>import ('@/layout/Client/Post.vue')
   },

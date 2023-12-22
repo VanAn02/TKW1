@@ -1,27 +1,31 @@
 import axios from "axios";
-const baivietApi = axios.create({
+const baiviet = axios.create({
     baseURL: 'https://localhost:7125/api/BaiViet'
 });
 export default {
     async getAll() {
-        return await baivietApi.get();
+        return await baiviet.get();
+    },
+    async getById(id){
+        return await baiviet.get(`${id}`)
+
     },
     async addData(data) {
-        return await baivietApi.post('', data,{
+        return await baiviet.post('', data,{
             headers: {
                 "Content-Type": "multipart/form-data"
             }
         })
     },
     async updateData(id, data) {
-        return await baivietApi.put(`${id}`, data,{
+        return await baiviet.put(`${id}`, data,{
             headers: {
                 "Content-Type": "multipart/form-data"
             }
         })
     },
     async deleteData(id){
-        return await baivietApi.delete(`${id}`)
+        return await baiviet.delete(`${id}`)
     }
     
 }

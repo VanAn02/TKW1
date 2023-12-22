@@ -6,17 +6,17 @@
           <v-card class="mx-auto mt-6 card1" color="white">
             <v-card class="d-flex flex-column" flat outlined tile>
               <v-img
-                :src="tour.image"
+                :src="tour.AnhTour"
                 class="flex-grow-1"
                 style="object-fit: cover"
               ></v-img>
               <v-card-text class="mt-n4">
                 <strong class="text-uppercase font-weight-bold">{{
-                  tour.title
+                  tour.TenTour
                 }}</strong>
                 <br />
                 <strong >{{
-                  tour.mota
+                  tour.MoTa
                 }}</strong>
               </v-card-text>
               <v-card-text class="mt-n4">
@@ -27,8 +27,7 @@
                 </v-icon>
                 <strong
                   class="font-weight-bold text-primary discounted-price"
-                  
-                  >{{ tour.price }}</strong
+                  >{{ formatCurrency(tour.Gia) }}</strong
                 >
               </v-card-text>
               <v-card-text class="mt-n4">
@@ -39,7 +38,7 @@
                 </v-icon>
                 <strong
                   class="font-weight-bold text-primary discounted-price"
-                  >{{ tour.location }}</strong
+                  >{{ tour.KhuVuc }}</strong
                 >
               </v-card-text>
               <v-card-text class="mt-n4">
@@ -50,12 +49,12 @@
                 </v-icon>
                 <strong
                   class="font-weight-bold text-primary discounted-price"
-                  >{{ tour.area }}</strong
+                  >{{ tour.KhoiHanh }}</strong
                 >
               </v-card-text>
             </v-card>
             <v-card-actions>
-              <router-link to="/detail" style="color: black">
+              <router-link :to="'/detail/'+tour.TourId" style="color: black">
                 <v-btn rounded color="red"> Chi Tiết </v-btn>
               </router-link>
             </v-card-actions>
@@ -69,81 +68,32 @@
   </div>
 </template>
 <script>
+import tour from '@/service/tour';
+
 export default {
   name: "MainComponet",
   data: () => ({
     datas: [],
     page: 1,
-    tours: [
-      {
-        class: "pa-0",
-        sold: "-20%",
-        image:
-          "https://vietnamtouristvn.com/thumbs/670x500x1/upload/product/phim-truong-miosa-9469.jpg",
-        title: "TOUR SAPA - LÀO CAI 3N2Đ TỪ TP. HỒ CHÍ MINH",
-        mota: "(Tour trọn gói vé bay khứ hồi/xe di chuyển + Lưu trú + Ăn/uống + Địa điểm tham quan  theo chương trình)",
-        price: "7.490.000đ",
-        location: "TP.Hcm - Hà Nội - Sapa - TP. Lào Cai",
-        area: "Miền Bắc",
-      },
-      {
-        class: "pa-0",
-        sold: "-30%",
-        image:
-          "https://vietnamtouristvn.com/thumbs/670x500x1/upload/product/ha8-4080.jpg",
-        title: "TOUR HÀ GIANG - THÁC BẢN GIỐC TỪ TP.HCM",
-        mota: "(Tour trọn gói vé bay khứ hồi/xe di chuyển + Lưu trú + Ăn/uống + Địa điểm tham quan  theo chương trình)",
-        price: " 6.890.000đ",
-        location: "TP.HCM - HÀ NỘI - HÀ GIANG - CAO BẰNG ",
-        area: "Miền Bắc",
-      },
-      {
-        class: "pa-0",
-        sold: "-17%",
-        image:
-          "https://vietnamtouristvn.com/thumbs/670x500x1/upload/product/ivivutourhanoi1nhoalutamcoctamcoc-2787.jpg",
-        title: "TOUR HOA LƯ - HANG MÚA - TAM CỐC",
-        mota: "(Tour trọn gói vé bay khứ hồi/xe di chuyển + Lưu trú + Ăn/uống + Địa điểm tham quan  theo chương trình)",
-        price: "850.000đ ",
-        location: "NINH BÌNH (HOA LƯ - HANG MÚA - TAM CỐC)",
-        area: "Miền Bắc",
-      },
-      {
-        class: "pa-0",
-        sold: "-15%",
-        image:
-          "https://vietnamtouristvn.com/thumbs/670x500x1/upload/product/da-nang-0181.png",
-        title: "TOUR ĐÀ NẴNG - HỘI AN 3N2Đ",
-        mota: "(Tour trọn gói vé bay khứ hồi/xe di chuyển + Lưu trú + Ăn/uống + Địa điểm tham quan  theo chương trình)",
-        price: "6.690.000đ ",
-        location: "TP.HCM - ĐÀ NẴNG - HỘI AN",
-        area: "Miền Trung",
-      },
-      {
-        class: "pa-0",
-        sold: "-20%",
-        image:
-          "https://vietnamtouristvn.com/thumbs/670x500x1/upload/product/nha-trang-1-5380.png",
-        title: "Tour Bình Ba - Nha Trang 2 Ngày 2 Đêm",
-        mota: "(Tour trọn gói vé bay khứ hồi/xe di chuyển + Lưu trú + Ăn/uống + Địa điểm tham quan  theo chương trình)",
-        price: "2.290.000đ ",
-        location: "Bình Ba - Nha Trang",
-        area: "Miền Trung",
-      },
-      {
-        class: "pa-0",
-        sold: "-10%",
-        image:
-          "https://vietnamtouristvn.com/thumbs/670x500x1/upload/product/vinwonders-khoi-dong-cuoc-thi-sang-tao-cac-nhan-vat-co-tich-phien-ban-viet-02-7164-9960.jpg",
-        title: "TOUR PHÚ QUỐC 4 NGÀY 3 ĐÊM",
-        mota: "(Tour trọn gói vé bay khứ hồi/xe di chuyển + Lưu trú + Ăn/uống + Địa điểm tham quan  theo chương trình)",
-        price: "7.690.000đ",
-        location: "TP.HCM - PHÚ QUỐC",
-        area: "Miền Nam",
-      },
-      
-    ],
+    tours:[]
   }),
+  methods:{
+    async getTour(){
+      const res = await tour.getAll();
+      this.tours=res.data;
+      console.log(res.data);
+    },
+    formatCurrency(value) {
+            const formatter = new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+            });
+            return formatter.format(value);
+        },
+  },
+  created(){
+    this.getTour();
+  }
 };
 </script>
 

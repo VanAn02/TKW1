@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 
 export default {
   name: 'App',
@@ -14,5 +15,11 @@ export default {
   data: () => ({
     //
   }),
+  methods:{
+    ...mapActions(['getSesstion'])
+  },
+  created(){
+    this.getSesstion();
+  }
 }
 </script>

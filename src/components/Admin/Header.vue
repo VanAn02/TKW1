@@ -6,13 +6,7 @@
     </v-toolbar-title>
 
     <v-spacer></v-spacer>
-    <v-responsive class="mx-auto" max-width="344">
-      <v-text-field
-        label="Search"
-        hide-details="auto"
-        prepend-inner-icon="mdi-magnify"
-      ></v-text-field>
-    </v-responsive>
+    
     <v-btn variant="text" icon @click="bellClick">
       <v-badge content="9+" color="error">
         <v-icon>mdi-bell</v-icon>
@@ -38,11 +32,6 @@
         <v-divider></v-divider>
 
         <v-list density="compact">
-          <v-list-item
-            prepend-icon="mdi-information"
-            title="Thông tin tài khoản"
-            value="Thông tin tài khoản"
-          ></v-list-item>
           <v-list-item
             prepend-icon="mdi-logout"
             title="Đăng xuất"

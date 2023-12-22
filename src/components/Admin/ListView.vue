@@ -1,7 +1,7 @@
 <template>
     <v-navigation-drawer>
         <v-list>
-            <v-list-subheader>Danh mục</v-list-subheader>
+            <v-list-subheader>Hoàng Thị Vân Anh</v-list-subheader>
             <v-list-item v-for="(item, i) in links" :key="i" :to="item.link" color="primary">
                 <template v-slot:prepend>
                     <v-icon>{{ item.icon }}</v-icon>

@@ -13,7 +13,7 @@
           <v-card>
             <v-table>
               <thead>
-                <tr>
+                <tr style="background-color: rgb(194, 203, 247)">
                   <th class="text-center">STT</th>
                   <th class="text-center">Ảnh Người Dùng</th>
                   <th class="text-center">Họ Và Tên</th>
@@ -28,60 +28,64 @@
               <tbody>
                 <tr v-for="(item, index) in datas" :key="index">
                   <td class="text-center">{{ index + 1 }}</td>
-                  <td class="text-center">
-                      <img :src="item.NguoiDungHinhAnh" style="width:120px;height:80px;" />
+                  <td class="text-center pa-1">
+                      <img :src="item.NguoiDungHinhAnh" style="width:150px;height:150px;" />
                   </td>
-                  <td class="text-center">{{ item.HoTen }}</td>
+                  <td class="text-center">{{ item.HoVaTen }}</td>
                   <td class="text-center">{{ item.Email }}</td>
                   <td class="text-center">{{ item.Password }}</td>
                   <td class="text-center">{{ item.DiaChi }}</td>
                   <td class="text-center">{{ item.Sdt }}</td>
                   <td class="text-center">{{ item.Quyen }}</td>
-
                   <td class="text-center">
-                    <v-btn
-                      icon
-                      type="submit"
-                      color="green"
-                      size="small"
-                      @click="(dialog = true), (currentData = item)"
-                    >
-                      <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
-                    <v-btn
-                      icon
-                      type="submit"
-                      color="red"
-                      size="small"
-                      @click="Confirm(item.Id)"
-                    >
-                      <v-icon>mdi-delete</v-icon>
-                    </v-btn>
-                  </td>
+                  <v-btn
+                    icon
+                    color="green"
+                    size="small"
+                    @click="(dialog = true), (currentData = item)"
+                  >
+                    <v-icon>mdi-pencil</v-icon>
+                  </v-btn>
+                  <v-btn
+                    icon
+                    color="red"
+                    size="small"
+                    @click="Show(item.NguoiDungId)"
+                  >
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </td>
                 </tr>
               </tbody>
             </v-table>
-            <v-pagination
-              prev-icon="mdi-menu-left"
-              next-icon="mdi-menu-right"
-              class="pa-8"
-              :length="totalPages"
-              v-model="currentPage"
-            ></v-pagination>
-          </v-card>
-        </v-col>
-      </v-row>
-    </div>
-    <Dialog
-      :dialog="dialog"
-      @close="dialog = false"
-      @updateData="getAll"
-      :currentData="currentData"
-    />
-    <thongbao ref="dialog" :obj="objId" @xoaData="xoaData" />
-  </template>
-      
+            <show
+            style="z-index: 1000"
+            v-model="showAlert.show"
+            :content="showAlert.content"
+            :color="showAlert.color"
+            :icon="showAlert.icon"
+          />
+          <v-pagination
+            prev-icon="mdi-menu-left"
+            next-icon="mdi-menu-right"
+            class="pa-8"
+            :length="totalPages"
+            v-model="currentPage"
+          ></v-pagination>
+        </v-card>
+      </v-col>
+    </v-row>
+  </div>
+  <Dialog
+    :dialog="dialog"
+    @close="dialog = false"
+    @updateData="getAll"
     
+    :currentData="currentData"
+  />
+  <thongbao ref="dialog" @deleteData="deleteData" :obj="objId"/>
+</template>
+      
 <script>
   import Dialog from "@/layout/Admin/NguoiDung/Dialog.vue";
   import Thongbao from "@/components/Client/Thongbao.vue";
@@ -100,7 +104,7 @@
           content: "",
           color: "success",
         },
-        dialogloading: false,
+        //dialogloading: false,
         currentPage: 1,
         itemsPerPage: 5,
       };
@@ -110,38 +114,70 @@
       Thongbao,
     },
     watch: {
-      showAlert: {
-        deep: true,
-        handler(newVal) {
-          if (!newVal.show) return;
-          setTimeout(() => (this.showAlert.show = false), 2000);
-        },
+    showAlert: {
+      deep: true,
+      handler(newVal) {
+        if (!newVal.show) return;
+        setTimeout(() => (this.showAlert.show = false), 2000);
       },
     },
-    methods: {
-      Confirm(id) {
-        (this.objId = id), this.$refs.dialog.openDialog();
-      },
-      async getAll(){
-          try{
-            const rs= await nguoidung.getAll();
-            this.datas=rs.data;
-            console.log(this.datas)
-          }catch(error){
-            console.log(error);
-          }
-      },
-      async xoaData(id) {
-        try {
-          const res = await nguoidung.deleteData(id);
-          console.log(res.data);
-          this.getAll();
-        } catch (error) {
-          console.log(error);
-        }
-      },
-     
+  },
+  computed: {
+    displayed() {
+      if (this.datas && this.datas.length > 0) {
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+        return this.datas.slice(startIndex, endIndex);
+      } else {
+        return [];
+      }
     },
+    totalPages() {
+      return Math.ceil(this.datas.length / this.itemsPerPage);
+    },
+  },
+  methods: {
+    async getAll() {
+      try {
+        this.dialogloading = true;
+        const res = await nguoidung.getAll();
+        this.datas = res.data;
+        this.dialogloading = false;
+      } catch (error) {
+        console.log(error);
+        this.dialogloading = false;
+      }
+    },
+    Show(id) {
+      (this.objId = id), this.$refs.dialog.openDialog();
+    },
+    async deleteData(id) {
+      try {
+        this.dialogloading = true;
+        const res = await nguoidung.deleteData(id);
+        console.log(res.data);
+        this.dialogloading = false;
+        this.getAll();
+        this.AlertSuccess("Xóa thành công");
+      } catch (error) {
+        console.log(error);
+        this.dialogloading = false;
+        this.AlertError("Thao tác xóa chưa được thực hiện");
+      }
+    },
+    AlertSuccess(content) {
+      this.showAlert.show = true;
+      this.showAlert.icon = "$success";
+      this.showAlert.content = content;
+      this.showAlert.color = "success";
+    },
+    AlertError(content) {
+      this.showAlert.show = true;
+      this.showAlert.content = content;
+      this.showAlert.icon = "$error";
+      this.showAlert.color = "error";
+    },
+  },
     created() {
       this.getAll();
     },

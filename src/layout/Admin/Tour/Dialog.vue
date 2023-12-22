@@ -1,14 +1,9 @@
 <template>
   <div>
-    <v-dialog v-model="dialogAction" max-width="900px">
+    <v-dialog v-model="dialogAction" max-width="800px">
       <v-card>
-        <v-card-title class="text-center">
-          <span>{{
-            !currentData
-              ? "Thêm thông tin tour mới "
-              : "Cập nhập thông tin tour"
-          }}</span>
-        </v-card-title>
+        <v-toolbar class="text-center bold-text" style="background-color: rgb(194, 203, 247);"
+                :title="this.idEdit != null ? 'Sửa thông tin tour mới' : 'Thêm thông tin tour mới'"></v-toolbar>
         <v-card-text>
           <v-form>
             <v-container>
@@ -20,9 +15,15 @@
                     accept="image/png, image/jpeg, image/bmp"
                     placeholder="Chọn ảnh"
                     prepend-icon="mdi-camera"
-                    label="Ảnh Tour"
+                    label="Hình ảnh"
                     @change="handleImageChange"
                   ></v-file-input>
+                  <img
+                    v-if="selectedImage"
+                    :src="selectedImage"
+                    style="width: 150px; height: 150px"
+                    alt="1"
+                  />
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field
@@ -32,19 +33,8 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field
-                    label="Mô Tả*"
-                    required
-                    v-model="formData.MoTa"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-text-field
-                    label="Giá*"
-                    required
-                    v-model="formData.Gia"
-                  ></v-text-field>
-                </v-col>
+                        <v-text-field label="Giá bán" required v-model="this.formData.Gia"></v-text-field>
+                    </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field
                     label="Khu Vực*"
@@ -73,26 +63,49 @@
                     v-model="formData.PhuongTien"
                   ></v-text-field>
                 </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    label="Khách Sạn*"
+                    required
+                    v-model="formData.KhachSan"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" >
+                  <v-textarea
+                    label="Mô Tả*"
+                    required
+                    v-model="formData.MoTa"
+                  ></v-textarea>
+                </v-col>
               </v-row>
             </v-container>
           </v-form>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
-          <v-btn color="green" @click="updateData"> Lưu </v-btn>
+          <v-btn color="green" @click="updateData()"> Lưu </v-btn>
           <v-spacer> </v-spacer>
           <v-btn color="red" @click="$emit('close'), reSetForm"> Hủy </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <show
+      style="z-index: 1000"
+      v-model="showAlert.show"
+      :content="showAlert.content"
+      :color="showAlert.color"
+      :icon="showAlert.icon"
+    />
   </div>
 </template>
     
   
-  <script>
+<script>
 import tour from "@/service/tour";
+import Show from "@/components/Show.vue";
 
 export default {
+  components: { Show },
   name: "DialogView",
   props: ["dialog", "currentData"],
   computed: {
@@ -110,27 +123,40 @@ export default {
   data() {
     return {
       formData: {
-        Id: "",
-        AnhTieuDe:"",
-        TieuDe: "",
-        NoiDung: "",
-        NgayDang: "",
         TourId: "",
+        AnhTour: "",
+        TenTour:"",
+        MoTa: "",
+        Gia: "",
+        KhuVuc: "",
+        ThoiGian: "",
+        KhoiHanh: "",
+        PhuongTien: "",
+        KhachSan:"",
       },
-      tours:[],
+      showAlert: {
+        show: false,
+        icon: "$success",
+        content: "",
+        color: "success",
+      },
+      tours: [],
       selectedImage: null,
       image: null,
-      tour: [],
     };
   },
   watch: {
     currentData: function () {
-      this.formData.Id = this.currentData.Id;
-      this.formData.AnhTieuDe=this.currentData.AnhTieuDe;
-      this.formData.TieuDe = this.currentData.TieuDe;
-      this.formData.NoiDung = this.currentData.NoiDung;
-      this.formData.NgayDang = this.currentData.NgayDang;
-      this.formData.TourId = this.currentData.Tour;
+      this.formData.TourId = this.currentData.TourId;
+      this.formData.AnhTour = this.currentData.AnhTour;
+      this.formData.TenTour = this.currentData.TenTour;
+      this.formData.MoTa = this.currentData.MoTa;
+      this.formData.Gia = this.currentData.Gia;
+      this.formData.KhuVuc = this.currentData.KhuVuc;
+      this.formData.ThoiGian = this.currentData.ThoiGian;
+      this.formData.KhoiHanh = this.currentData.KhoiHanh;
+      this.formData.PhuongTien = this.currentData.PhuongTien;
+      this.formData.KhachSan = this.currentData.KhachSan;
     },
     showAlert: {
       deep: true,
@@ -151,44 +177,77 @@ export default {
         this.selectedImage = null;
       }
     },
+    reSetForm() {
+      this.formData.TourId = "";
+      this.formData.AnhTour = "";
+      this.formData.TenTour = "";
+      this.formData.MoTa = "";
+      this.formData.Gia = "";
+      this.formData.KhuVuc = "";
+      this.formData.ThoiGian = "";
+      this.formData.KhoiHanh = "";
+      this.formData.PhuongTien = "";
+      this.formData.KhachSan = "";
+
+    },
     async updateData() {
-      console.log(this.formData);
+     // console.log(this.formData)
+
       this.dialogloading = true;
       try {
-        if (this.formData.Id === "") {
-          this.formData.Id = 0;
-          this.formData.AnhTieuDe=this.image;
-          console.log(this.formData);
-          //console.log(res.data);
-          const rs =await tour.addData(this.formData);
-          console.log(rs);
+        if (this.formData.TourId === "") {
+          this.formData.TourId = 0;
+          this.formData.AnhTour = this.image;
+          console.log(this.formData)
+          const res = await tour.addData(this.formData);
+          console.log(res.data);
+          this.dialogloading = false;
+          this.AlertSuccess("Thêm mới thông tin thành công");
         } else {
-          this.formData.AnhTieuDe = this.image;
+          this.formData.AnhTour = this.image;
           const res = await tour.updateData(
-            this.formData.Id,
+            this.formData.TourId,
             this.formData
           );
           console.log(res.data);
+          this.dialogloading = false;
+          this.getTour()
+          this.AlertSuccess("Cập nhập thông tin thành công");
         }
       } catch (error) {
         console.log(error);
+        this.dialogloading = false;
+        this.AlertError("Không thể thực hiện được");
       }
       this.$emit("close");
       this.$emit("updateData");
+      this.reSetForm();
     },
     async getTour() {
-            try {
-                const res = await tour.getAll();
-                this.tours = res.data;
-                console.log(this.tours);
-            } catch (error) {
-                console.log(error);
-            }
-        },
+      try {
+        const res = await tour.getAll();
+        this.tours = res.data;
+        console.log(this.tours);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    AlertSuccess(content) {
+      this.showAlert.show = true;
+      this.showAlert.icon = "$success";
+      this.showAlert.content = content;
+      this.showAlert.color = "success";
+    },
+    AlertError(content) {
+      this.showAlert.show = true;
+      this.showAlert.content = content;
+      this.showAlert.icon = "$error";
+      this.showAlert.color = "error";
+    },
   },
-  created(){
+  created() {
     this.getTour();
-  }
+  },
 };
 </script>
   
