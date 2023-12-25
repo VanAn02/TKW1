@@ -4,14 +4,22 @@ export default createStore({
   state: {
     token:null,
     nguoidungId:null,
-    quyen:null
+    quyen:null,
+    search: '',
+
   },
   getters: {
+    getSearch(state) {
+      return state.search;
+    },
     getToken: state => state.token,
     getNguoiDungId: state => state.nguoidungId,
     getQuyen: state => state.quyen,
   },
   mutations: {
+    Search(state, data) {
+      state.search = data;
+    },
     setToken(state) {
       state.token = sessionStorage.getItem('token');
     },
@@ -26,6 +34,7 @@ export default createStore({
     },
     removeNguoiDungId(state) {
       state.nguoidungId = sessionStorage.clear('NguoiDungId')
+
     },
     removeQuyen(state) {
       state.quyen = sessionStorage.clear('Quyen');
@@ -49,6 +58,9 @@ export default createStore({
       } catch (error) {
         console.log(error);
       }
+    },
+    Search(context, data) {
+      context.commit('Search', data);
     },
     getSesstion(context){
       if(sessionStorage.getItem('token')){

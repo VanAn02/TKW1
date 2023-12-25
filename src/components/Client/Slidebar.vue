@@ -2,7 +2,7 @@
   <v-carousel class="my-10" hide-delimiters cycle>
     <v-carousel-item v-for="(slide, i) in slides" :key="i">
       <div class="d-flex justify-center align-center fill-height">
-        <v-img :src="slide.src" object-fit="cover" width="700" height="730"></v-img>
+        <v-img :src="slide.src" object-fit="cover" width="700" height="2500"></v-img>
       </div>
     </v-carousel-item>
   </v-carousel>

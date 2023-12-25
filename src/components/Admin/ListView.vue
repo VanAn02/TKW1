@@ -19,8 +19,6 @@ export default {
         return {
             links: [
                 { icon: " mdi-newspaper", text: "Quản lý Bài Viết", link: "/admin/baiviet" },
-                { icon: "mdi-file-document", text: "Quản lý Chi Tiết Hóa Đơn", link: "/admin/chitiethoadon" },
-                { icon: "mdi-wallet-travel", text: "Quản lý Đặt Tour", link: "/admin/dattour" },
                 { icon: "mdi-receipt", text: "Quản lý Hóa Đơn", link: "/admin/hoadon" },
                 { icon: "mdi-account-circle", text: "Quản lý Người Dùng", link: "/admin/nguoidung" },
                 { icon: "mdi-airplane", text: "Quản lý Tour", link: "/admin/tour" },

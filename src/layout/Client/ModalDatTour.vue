@@ -34,7 +34,7 @@
             </v-card-text>
             <v-divider></v-divider>
             <v-card-actions>
-                <v-btn color="green"> Đặt </v-btn>
+                <v-btn @click="dattour()" color="green"> Đặt </v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -55,34 +55,35 @@ export default {
             formData:{
                 HoVaTen:'',
                 DiaChi:'',
-                HoaDonId:'',
                 NguoiDungId:'',
-                TongTien:'',
                 HoaDonSdt:'',
                 GhiChu:'',
-                SoLuong:''
+                SoLuong:'',
+                TourId:''
             }
         }
     },
     methods:{
         dattour()
         {
+            console.log(this.formData)
             axios.post("https://localhost:7125/api/HoaDon",this.formData).then(rs=>{
-
+                this.$emit('close')
+                alert("Bạn đặt thành công")
             }).catch(error=>{
                 alert(error.message)
             })
         }
     },
     created(){
-        this.NguoiDungId=this.$store.state.nguoidungId;
+        this.formData.NguoiDungId=this.$store.state.nguoidungId;
     },
-    // watch:{
-    //     TourId(newvla)
-    //     {
-    //         alert(newvla)
-    //     }
-    // }
+    watch:{
+        TourId(newval){
+            this.formData.TourId=newval
+        }
+    }
+    
 }
 </script>
 

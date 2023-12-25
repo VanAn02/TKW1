@@ -61,24 +61,28 @@
   </div>
 </template>
 <script>
-import baiviet from '@/service/baiviet';
+import axios from 'axios';
 
 export default {
   name: "PostView",
   data: () => ({
     datas: [],
     page: 1,
-    baiviets:[]
+    baiviet:[]
   }),
   methods:{
-    async getBaiViet(){
-      const res = await baiviet.getAll();
-      this.baiviets=res.data;
-      console.log(res.data);
+    ChiTiet(id){
+      axios.get('https://localhost:7125/api/BaiViet/'+id).then(res=>{
+        this.baiviet=res.data;
+      }).catch(error=>{
+        console.log(error);
+      })
     }
   },
-  created(){
-    this.getBaiViet();
+  mounted(){
+    const id =this.$route.params.id;
+    this.ChiTiet(id);
+
   }
 };
 </script>

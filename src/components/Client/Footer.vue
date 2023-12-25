@@ -1,5 +1,5 @@
 <template>
-  <v-footer dark padless>
+  <v-footer>
     <v-card flat tile class="black white--text py-12 px-5" width="100%" color="black">
       <v-row>
         <v-col cols="12" xs="12" sm="6" md="4" class="pa-16">

@@ -59,7 +59,11 @@ export default {
   },
   methods: {
     logout() {
-      this.$router.push("/");
+      if (confirm('Bạn có muốn đăng xuất')) {
+        this.$store.dispatch('Logout');
+        alert('Bạn đã đăng xuất thành công');
+        this.$router.push('/');
+      }
     },
   },
 };

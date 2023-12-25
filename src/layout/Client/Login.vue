@@ -64,7 +64,7 @@ export default {
       try {
         this.loading = true;
         const res = await nguoidung.Login(this.FormLogin);
-        console.log(res.data.token);
+        console.log(res.data);
         setTimeout(() => {
           this.Email = "";
           this.Password = "";
@@ -72,10 +72,12 @@ export default {
         }, 1500);
         this.Token(res.data.token);
         this.$store.dispatch("Login", res.data.token);
-        this.AlertSuccess(res.data.message);
-        setTimeout(() => {  
-          this.$router.push("/");
-        }, 4000);
+        this.AlertSuccess(res.data.message);        
+        if(res.data.quyen === 'Người dùng'){
+          this.$router.push('/');
+        }else{
+          this.$router.push('/admin');
+        }
       } catch (error) {
         this.loading = false;
         this.AlertError(error.response.data);

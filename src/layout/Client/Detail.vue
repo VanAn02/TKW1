@@ -79,7 +79,7 @@
         </div>
       </v-card>
     </v-container>
-    <DetailsView :TourId="this.TourId" v-model="showDialog"/>
+    <DetailsView @close="CloseModal" :TourId="this.TourId" v-model="showDialog"/>
   </div>
   <Footer />
 </template>
@@ -118,6 +118,10 @@ export default {
             });
             return formatter.format(value);
         },
+    CloseModal()
+    {
+      this.showDialog=false
+    }
   },
   mounted() {
     const id = this.$route.params.id;

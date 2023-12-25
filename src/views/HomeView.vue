@@ -1,10 +1,12 @@
 <template>
   <v-app>
     <Navbar class="index" />
+     <v-main>
       <slidebar/>
     <Main />
     <v-divider></v-divider>
     <!-- <Blog/> -->
+     </v-main>
     <Footer />
   </v-app>
 </template>

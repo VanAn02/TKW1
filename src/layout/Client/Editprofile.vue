@@ -3,7 +3,8 @@
         <v-dialog v-model="dialog" persistent width="10s00">
             <v-card elevation="2">
                 <v-card-title>
-                  <v-toolbar class="text-center bold-text" style="background-color: rgb(194, 203, 247);">Cập nhập thông tin tài khoản</v-toolbar>
+                    <v-toolbar class="text-center bold-text" style="background-color: rgb(194, 203, 247);">Cập nhập thông
+                        tin tài khoản</v-toolbar>
                 </v-card-title>
                 <v-card-text>
                     <v-form @submit.prevent="update">
@@ -26,7 +27,7 @@
 </template>
 
 <script>
-import nguoidung from '../../service/nguoidung';
+import axios from 'axios';
 export default {
     name: 'EditView',
     props: ['currentData'],
@@ -43,29 +44,27 @@ export default {
                 Password: '',
                 Quyen: ''
             },
-            image:null
+            image: null
         };
     },
     methods: {
         handleImageChange(event) {
-            const selectedFile = event.target.files[0];
-            if (selectedFile) {
-                this.formData.NguoiDungHinhAnh = selectedFile;
-                this.selectedImage = URL.createObjectURL(selectedFile);
-            } else {
-                this.selectedImage = null;
-            }
+            this.formData.NguoiDungHinhAnh = event.target.files[0];
         },
         openDialog() {
             this.dialog = true;
         },
-        async update() {
-            try{
-                const res =await nguoidung.updateUser(this.formData);
-                console.log(res.data);
-            }catch(error){
-                console.log(error.data)
-            }
+        update() {
+            axios.put('https://localhost:7125/api/NguoiDung/updateUser/' + this.formData.NguoiDungId,this.formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                }).then(res => {
+                    console.log(res.data);
+                }).catch(error => {
+                    console.log(error);
+                })
             this.$emit("update")
             this.dialog = false;
         }

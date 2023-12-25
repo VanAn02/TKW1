@@ -36,7 +36,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in datas" :key="index">
+              <tr v-for="(item, index) in displayed" :key="index">
                 <td class="text-center">{{ index + 1 }}</td>
                 <td class="text-center">
                   <img
@@ -91,7 +91,7 @@
         </v-card>
       </v-col>
     </v-row>
-  </div>
+  <thongbao ref="dialog" @deleteData="deleteData" :obj="objId"/>
   <Dialog
     :dialog="dialog"
     @close="dialog = false"
@@ -99,7 +99,7 @@
     
     :currentData="currentData"
   />
-  <thongbao ref="dialog" @deleteData="deleteData" :obj="objId"/>
+  </div>
 </template>
       
     
@@ -124,7 +124,7 @@ export default {
       },
       //dialogloading: false,
       currentPage: 1,
-      itemsPerPage: 5,
+      itemsPerPage: 4,
     };
   },
   components: {
